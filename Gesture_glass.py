@@ -2,6 +2,7 @@ import numpy as np
 import cv2
 from pynput.mouse import Button,Controller
 import wx
+import time
 '''def resize(img):
     img=cv2.resize(img,(852,480))
     return img'''
@@ -56,7 +57,6 @@ while True:
     imgHSV = cv2.cvtColor(img,cv2.COLOR_BGR2HSV)
     g_lower = np.array([79,145,36])
     g_upper = np.array([94,255,205])
-    #r_lower,r_upper= calib()
     r_lower= np.array([104,112,107])
     r_upper= np.array([114,255,255])
     g_mask_final = ret_mask(imgHSV,g_lower,g_upper,KernelOpen,KernelClose)
@@ -95,10 +95,16 @@ while True:
             mouse.release(Button.right)
         if flagb==0:
             if abs(distance(cx1,cy1,cx3,cy3))<30 or abs(distance(cx2,cy2,cx3,cy3))<30:
-                print(distance(cx1,cy1,cx3,cy3))
-                print(distance(cx2,cy2,cx3,cy3))
+                #print(distance(cx1,cy1,cx3,cy3))
+                #print(distance(cx2,cy2,cx3,cy3))
                 flagb=1
                 mouse.press(Button.right)
+        if distance(cx1,cy1,cx2,cy2) > 130 and (distance(cx1,cy1,cx3,cy3)>100 and distance(cx2,cy2,cx3,cy3)>100):
+            mouse.scroll(0,-2)
+            time.sleep(0.3)
+        if distance(cx1,cy1,cx2,cy2) > 125 and (distance(cx1,cy1,cx3,cy3)<100 or distance(cx2,cy2,cx3,cy3)<100):
+            mouse.scroll(0,2)
+            time.sleep(0.3)
         mouseLoc=mouseOld+((cx,cy)-mouseOld)/DampingFactor
         #mouseLoc=(sx-(mouseLoc[0]*sx//camx),mouseLoc[1]*sy//camy)
         mouse.position=(sx-(mouseLoc[0]*sx//camx),mouseLoc[1]*sy//camy)
@@ -106,6 +112,11 @@ while True:
             pass
         mouseOld=mouseLoc
         openx,openy,openw,openh = cv2.boundingRect(np.array([[[x1,y1],[x1+w1,y1+h1],[x2,y2],[x2+w2,y2+h2]]]))
+        print("Green distances: ")
+        print(distance(cx1,cy1,cx2,cy2))
+        print("Between green and blue: ")
+        print(distance(cx1,cy1,cx3,cy3))
+        print(distance(cx2,cy2,cx3,cy3))
     elif len(g_cont) == 1:
         x,y,w,h = cv2.boundingRect(g_cont[0])
         if flag==0:
